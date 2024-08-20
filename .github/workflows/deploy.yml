@@ -84,7 +84,10 @@ jobs:
           sudo mkdir -p $DEPLOY_PATH
 
           # Unpack the build artifact
-          sudo tar -xzf $ARTIFACT_PATH -C $DEPLOY_PATH
+          #sudo tar -xzf $ARTIFACT_PATH -C $DEPLOY_PATH
+          sudo cp -r $ARTIFACT_PATH/* $DEPLOY_PATH/
+       
+
 
           # Restart the application
           sudo systemctl start $SERVICE_NAME

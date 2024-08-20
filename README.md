@@ -36,7 +36,7 @@ This project is intended to help you understand and experiment with Blue-Green D
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/yourusername/Bg.Csharp.Web.git
+   git clone https://github.com/mroluwasesan/Bg.Csharp.Web.git
    cd Bg.Csharp.Web
 
 2. **Build the Solution:**

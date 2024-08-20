@@ -55,7 +55,7 @@ jobs:
           BLUE_PATH="/var/www/blue"
           GREEN_PATH="/var/www/green"
           CURRENT_PATH="/var/www/current"  # Symlink to the currently active deployment
-          ARTIFACT_PATH="/home/$(whoami)/publish/web-app.tar.gz"
+          ARTIFACT_PATH="/home/$(whoami)/publish"
 
           # Determine which environment to deploy to
           if [ -L $CURRENT_PATH ] && [ "$(readlink -f $CURRENT_PATH)" = "$BLUE_PATH" ]; then

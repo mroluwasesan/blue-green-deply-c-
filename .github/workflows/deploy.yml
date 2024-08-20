@@ -1,0 +1,76 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main  # Change this to the branch you want to deploy from
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.x'  # Change this to your .NET version
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release
+
+    - name: Publish
+      run: dotnet publish --configuration Release --output ./publish
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: web-app
+        path: ./publish
+
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        password: ${{ secrets.PASSWORD }}
+        
+        script: |
+          # Define variables
+          APP_NAME="bg-web-app"
+          BLUE_PATH="/var/www/blue"
+          GREEN_PATH="/var/www/green"
+          CURRENT_PATH="/var/www/current"  # Symlink to the currently active deployment
+
+          # Determine which environment to deploy to
+          if [ -L $CURRENT_PATH ] && [ "$(readlink -f $CURRENT_PATH)" = "$BLUE_PATH" ]; then
+              DEPLOY_PATH="$GREEN_PATH"
+          else
+              DEPLOY_PATH="$BLUE_PATH"
+          fi
+
+          # Stop the running application
+          sudo systemctl stop $APP_NAME
+
+          # Remove old release from the target directory
+          sudo rm -rf $DEPLOY_PATH/*
+
+          # Create deployment directory
+          sudo mkdir -p $DEPLOY_PATH
+
+          # Unpack the build artifact
+          sudo tar -xzf ~/web-app.tar.gz -C $DEPLOY_PATH
+
+          # Restart the application
+          sudo systemctl start $APP_NAME
+
+          # Update the symlink to point to the new deployment
+          sudo ln -sfn $DEPLOY_PATH $CURRENT_PATH
+
+          # Clean up
+          rm ~/web-app.tar.gz

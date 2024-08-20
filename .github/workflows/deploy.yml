@@ -34,7 +34,7 @@ jobs:
         path: ./publish
 
     - name: Upload artifact to server
-      uses: appleboy/scp-action@v1
+      uses: appleboy/scp-action@v0.1.6  # Update this to the correct version
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}

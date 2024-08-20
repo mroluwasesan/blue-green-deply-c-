@@ -46,6 +46,7 @@ jobs:
           BLUE_PATH="/var/www/blue"
           GREEN_PATH="/var/www/green"
           CURRENT_PATH="/var/www/current"  # Symlink to the currently active deployment
+          ARTIFACT_PATH="/home/$(whoami)/web-app.tar.gz"
 
           # Determine which environment to deploy to
           if [ -L $CURRENT_PATH ] && [ "$(readlink -f $CURRENT_PATH)" = "$BLUE_PATH" ]; then
@@ -58,6 +59,12 @@ jobs:
               OTHER_SERVICE="$GREEN_SERVICE"
           fi
 
+          # Check if the artifact exists
+          if [ ! -f $ARTIFACT_PATH ]; then
+              echo "Artifact $ARTIFACT_PATH not found!"
+              exit 1
+          fi
+
           # Stop the running application
           sudo systemctl stop $SERVICE_NAME
 
@@ -68,7 +75,7 @@ jobs:
           sudo mkdir -p $DEPLOY_PATH
 
           # Unpack the build artifact
-          sudo tar -xzf ~/web-app.tar.gz -C $DEPLOY_PATH
+          sudo tar -xzf $ARTIFACT_PATH -C $DEPLOY_PATH
 
           # Restart the application
           sudo systemctl start $SERVICE_NAME
@@ -77,4 +84,4 @@ jobs:
           sudo ln -sfn $DEPLOY_PATH $CURRENT_PATH
 
           # Clean up
-          rm ~/web-app.tar.gz
+          rm $ARTIFACT_PATH

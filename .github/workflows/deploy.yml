@@ -84,4 +84,4 @@ jobs:
           sudo ln -sfn $DEPLOY_PATH $CURRENT_PATH
 
           # Clean up
-          #rm $ARTIFACT_PATH
+          rm $ARTIFACT_PATH

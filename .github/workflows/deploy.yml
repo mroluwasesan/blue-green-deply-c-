@@ -39,10 +39,10 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
         password: ${{ secrets.PASSWORD }}
-        
         script: |
           # Define variables
-          APP_NAME="bg-web-app"
+          BLUE_SERVICE="bg-blue.service"
+          GREEN_SERVICE="bg-green.service"
           BLUE_PATH="/var/www/blue"
           GREEN_PATH="/var/www/green"
           CURRENT_PATH="/var/www/current"  # Symlink to the currently active deployment
@@ -50,12 +50,16 @@ jobs:
           # Determine which environment to deploy to
           if [ -L $CURRENT_PATH ] && [ "$(readlink -f $CURRENT_PATH)" = "$BLUE_PATH" ]; then
               DEPLOY_PATH="$GREEN_PATH"
+              SERVICE_NAME="$GREEN_SERVICE"
+              OTHER_SERVICE="$BLUE_SERVICE"
           else
               DEPLOY_PATH="$BLUE_PATH"
+              SERVICE_NAME="$BLUE_SERVICE"
+              OTHER_SERVICE="$GREEN_SERVICE"
           fi
 
           # Stop the running application
-          sudo systemctl stop $APP_NAME
+          sudo systemctl stop $SERVICE_NAME
 
           # Remove old release from the target directory
           sudo rm -rf $DEPLOY_PATH/*
@@ -67,7 +71,7 @@ jobs:
           sudo tar -xzf ~/web-app.tar.gz -C $DEPLOY_PATH
 
           # Restart the application
-          sudo systemctl start $APP_NAME
+          sudo systemctl start $SERVICE_NAME
 
           # Update the symlink to point to the new deployment
           sudo ln -sfn $DEPLOY_PATH $CURRENT_PATH

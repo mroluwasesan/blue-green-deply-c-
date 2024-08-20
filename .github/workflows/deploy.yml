@@ -3,7 +3,7 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - main  # Change this to the branch you want to deploy from
+      - main  # Adjust the branch you want to deploy from
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.x'  # Change this to your .NET version
+        dotnet-version: '7.x'  # Set to your .NET version
 
     - name: Install dependencies
       run: dotnet restore
@@ -27,19 +27,16 @@ jobs:
     - name: Publish
       run: dotnet publish --configuration Release --output ./publish
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: web-app
-        path: ./publish
+    - name: Create tarball of the publish directory
+      run: tar -czf web-app.tar.gz -C ./publish .
 
     - name: Upload artifact to server
-      uses: appleboy/scp-action@v0.1.6  # Update this to the correct version
+      uses: appleboy/scp-action@v0.1.6
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
         password: ${{ secrets.PASSWORD }}
-        source: ./publish/
+        source: web-app.tar.gz
         target: /home/$(whoami)/
 
     - name: Deploy to server
@@ -55,7 +52,7 @@ jobs:
           BLUE_PATH="/var/www/blue"
           GREEN_PATH="/var/www/green"
           CURRENT_PATH="/var/www/current"  # Symlink to the currently active deployment
-          ARTIFACT_PATH="/home/$(whoami)/publish"
+          ARTIFACT_PATH="/home/$(whoami)/web-app.tar.gz"
 
           # Determine which environment to deploy to
           if [ -L $CURRENT_PATH ] && [ "$(readlink -f $CURRENT_PATH)" = "$BLUE_PATH" ]; then
@@ -74,19 +71,17 @@ jobs:
           # Remove old release from the target directory
           sudo rm -rf $DEPLOY_PATH/*
 
-          # Create deployment directory
+          # Create deployment directory if not exists
           sudo mkdir -p $DEPLOY_PATH
 
-          # Unpack the build artifact
-          #sudo tar -xzf $ARTIFACT_PATH -C $DEPLOY_PATH
-          sudo cp -r $ARTIFACT_PATH/* $DEPLOY_PATH/
-       
+          # Unpack the build artifact to the deployment path
+          sudo tar -xzf $ARTIFACT_PATH -C $DEPLOY_PATH
 
-          # Restart the application
+          # Start the application
           sudo systemctl start $SERVICE_NAME
 
           # Update the symlink to point to the new deployment
           sudo ln -sfn $DEPLOY_PATH $CURRENT_PATH
 
-        #   # Clean up
-        #   rm $ARTIFACT_PATH
+          # Clean up
+          rm $ARTIFACT_PATH

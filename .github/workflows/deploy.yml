@@ -68,14 +68,6 @@ jobs:
               OTHER_SERVICE="$GREEN_SERVICE"
           fi
 
-          pwd
-
-          # Check if the artifact exists
-          if [ ! -f $ARTIFACT_PATH ]; then
-              echo "Artifact $ARTIFACT_PATH not found!"
-              exit 1
-          fi
-
           # Stop the running application
           sudo systemctl stop $SERVICE_NAME
 

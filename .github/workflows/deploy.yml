@@ -88,5 +88,5 @@ jobs:
           # Update the symlink to point to the new deployment
           sudo ln -sfn $DEPLOY_PATH $CURRENT_PATH
 
-          # Clean up
-          rm $ARTIFACT_PATH
+        #   # Clean up
+        #   rm $ARTIFACT_PATH

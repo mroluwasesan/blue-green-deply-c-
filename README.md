@@ -1,3 +1,5 @@
+![alt text](<Screenshot 2024-08-21 at 12.43.51 PM.png>) ![alt text](<Screenshot 2024-08-21 at 12.41.18 PM.png>)
+
 # Bg.Csharp.Web - ASP.NET Core Sample for Blue-Green Deployment
 
 ## Overview

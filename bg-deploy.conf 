@@ -1,0 +1,28 @@
+#nginx conf file for blue-green deployment
+
+upstream blue {
+    server 127.0.0.1:5000;  # Port where Blue is running
+}
+
+upstream green {
+    server 127.0.0.1:5001;  # Port where Green is running
+}
+
+server {
+    listen 80;
+    server_name 104.208.166.90;
+
+    location / {
+        proxy_pass http://green;  # Change to http://green when switching environments
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Disable caching
+        proxy_buffering off;
+        proxy_cache_bypass $http_upgrade;
+        proxy_no_cache $http_upgrade;
+        proxy_set_header Cache-Control "no-store";
+    }
+}

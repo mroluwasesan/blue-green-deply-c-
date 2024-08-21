@@ -1,0 +1,15 @@
+[Unit]
+Description=Bg Web App - Green Environment
+After=network.target
+
+[Service]
+WorkingDirectory=/var/www/green
+ExecStart=/usr/bin/dotnet /var/www/green/Bg.Web.dll --urls "http://*:5001"
+Restart=always
+RestartSec=10
+SyslogIdentifier=bg-web-green
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=Bg Web App - Blue Environment
+After=network.target
+
+[Service]
+WorkingDirectory=/var/www/blue
+ExecStart=/usr/bin/dotnet /var/www/blue/Bg.Web.dll --urls "http://*:5000"
+Restart=always
+RestartSec=10
+SyslogIdentifier=bg-web-blue
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production
+
+[Install]
+WantedBy=multi-user.target

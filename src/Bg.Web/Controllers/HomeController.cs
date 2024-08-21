@@ -6,7 +6,7 @@ namespace Bg.Web.Controllers
     {
         public IActionResult Index()
         {
-            ViewBag.Environment = "blue"; // Change to "Green" in the Green environment
+            ViewBag.Environment = "page 1"; // Change to "Green" in the Green environment
             return View();
         }
     }

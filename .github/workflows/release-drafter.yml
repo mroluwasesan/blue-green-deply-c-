@@ -17,6 +17,9 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
       - name: Draft Release Notes
         uses: release-drafter/release-drafter@v6
         env:
@@ -24,20 +27,20 @@ jobs:
 
       - name: Get the current commit SHA
         id: get_sha
-        run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Create a Tag
         id: tag
         run: |
-          git tag v${{ steps.get_sha.outputs.sha }}
-          git push origin v${{ steps.get_sha.outputs.sha }}
+          git tag v${{ env.sha }}
+          git push origin v${{ env.sha }}
 
       - name: Publish Release
         if: github.event_name == 'push'  # Only auto-publish on push to main branch
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.TOKEN }}
-          tag: v${{ steps.get_sha.outputs.sha }}  # Use the created tag
+          tag: v${{ env.sha }}  # Use the created tag
           draft: false
           prerelease: false
-          name: "Release ${{ steps.get_sha.outputs.sha }}"  # Customize the release name as needed
+          name: "Release ${{ env.sha }}"  # Customize the release name as needed

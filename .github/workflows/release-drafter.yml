@@ -21,3 +21,13 @@ jobs:
         uses: release-drafter/release-drafter@v6
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+      - name: Publish Release
+        if: github.event_name == 'push'  # Only auto-publish on push to main branch
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.TOKEN }}   
+          draft: false                  
+          prerelease: false             
+          name: "Release ${{ github.sha }}"  
+          tag_name: ${{ github.sha }}    

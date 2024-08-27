@@ -22,12 +22,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
+      - name: Get the current commit SHA
+        id: get_sha
+        run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+
+      - name: Create a Tag
+        id: tag
+        run: |
+          git tag v${{ steps.get_sha.outputs.sha }}
+          git push origin v${{ steps.get_sha.outputs.sha }}
+
       - name: Publish Release
         if: github.event_name == 'push'  # Only auto-publish on push to main branch
         uses: ncipollo/release-action@v1
         with:
-          token: ${{ secrets.TOKEN }}   
-          draft: false                  
-          prerelease: false             
-          name: "Release ${{ github.sha }}"  
-          tag_name: ${{ github.sha }}    
+          token: ${{ secrets.TOKEN }}
+          tag: v${{ steps.get_sha.outputs.sha }}  # Use the created tag
+          draft: false
+          prerelease: false
+          name: "Release ${{ steps.get_sha.outputs.sha }}"  # Customize the release name as needed
